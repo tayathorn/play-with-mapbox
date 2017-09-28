@@ -60,6 +60,10 @@ export default class Home extends Component {
     })
   }
 
+  getAnnotation = () => {
+    
+  }
+
   render() {
     return (
       <View style={{ flex: 1 }}>
@@ -78,6 +82,7 @@ export default class Home extends Component {
           onUpdateUserLocation={this.onUpdateUserLocation}
           onRegionDidChange={this.onRegionDidChange}
           logoIsHidden={true}
+          attributionButtonIsHidden={true}
         />
         <CenterDetail center={this.centerMapDetail} />
       </View>
