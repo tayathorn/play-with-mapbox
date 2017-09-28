@@ -6,8 +6,9 @@ import {
 } from 'react-native';
 
 import Mapbox, { MapView } from 'react-native-mapbox-gl'
+import { Config } from '../../config'
 
-const accessToken = 'Access-Token'
+const accessToken = Config.map.accessToken
 Mapbox.setAccessToken(accessToken);
 
 export default class Map extends Component {
