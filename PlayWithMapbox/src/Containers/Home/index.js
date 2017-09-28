@@ -5,8 +5,10 @@ import {
   View
 } from 'react-native';
 
-import Map from '../../Components/Map'
 import { Config } from '../../config'
+
+import Map from '../../Components/Map'
+import CenterDetail from '../../Components/Map/CenterDetail'
 
 const initialMap = {
   zoom: 0,
@@ -21,13 +23,41 @@ const ZOOM_LEVEL = 15
 export default class Home extends Component {
   constructor() {
     super()
+
+    this.state = {
+      centerMapDetail: {
+        latitude: 0,
+        longitude: 0,
+        zoomLevel: 0
+      }
+    }
+
+    this.centerMapDetail = {
+      latitude: 0,
+      longitude: 0,
+      zoomLevel: 0
+    }
   }
 
-  onUpdateUserLocation = (res) => {
+  onUpdateUserLocation = (location) => {
 
-    let { latitude, longitude } = res
+    let { latitude, longitude } = location
     this._map.setCenterCoordinateZoomLevel(latitude, longitude, ZOOM_LEVEL, true)
-    
+
+  }
+
+  onRegionDidChange = (location) => {
+    let { latitude, longitude, zoomLevel } = location
+
+    this.centerMapDetail = {
+      latitude, longitude, zoomLevel
+    }
+
+    this.setState({
+      centerMapDetail: {
+        latitude, longitude, zoomLevel
+      }
+    })
   }
 
   render() {
@@ -46,7 +76,10 @@ export default class Home extends Component {
           showsUserLocation={true}
           styleURL={Config.map.styleUrl}
           onUpdateUserLocation={this.onUpdateUserLocation}
+          onRegionDidChange={this.onRegionDidChange}
+          logoIsHidden={true}
         />
+        <CenterDetail center={this.centerMapDetail} />
       </View>
     )
   }
