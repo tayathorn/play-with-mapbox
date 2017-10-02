@@ -83,14 +83,18 @@ export default class Map extends Component {
   }
 
   onPressCenterUserLocation = (location) => {
-    let { latitude, longitude } = location
 
-    this._map.setCenterCoordinate(latitude, longitude, true)
+    if(location) {
+      let { latitude, longitude } = location
+      this._map.setCenterCoordinate(latitude, longitude, true)
+    }
+  }
+
+  onSelectAnnotation = (annotation) => {
+    console.log('onSelectAnnotation : ', annotation)
   }
 
   render() {
-    console.log('RENDERRRRR')
-    console.log('annotations : ', this.state.annotations.length)
     return (
       <MapView
         ref={map => { this._map = map; }}
@@ -108,7 +112,7 @@ export default class Map extends Component {
         onRegionDidChange={this.onRegionDidChange}
         logoIsHidden={true}
         attributionButtonIsHidden={true}
-        onOpenAnnotation={() => { console.log('onOpenAnnotation') }}
+        onOpenAnnotation={this.onSelectAnnotation}
       >
         {this.getAnnotation()}
       </MapView>
