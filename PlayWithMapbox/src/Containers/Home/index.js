@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   Text,
-  View
+  View,
+  Image,
+  TouchableOpacity,
 } from 'react-native';
 
 import { Config } from '../../config'
@@ -21,6 +23,8 @@ export default class Home extends Component {
         zoomLevel: 0
       }
     }
+
+    this.currentUserLocation = null
   }
 
   onRegionDidChange = (location) => {
@@ -32,14 +36,50 @@ export default class Home extends Component {
     })
   }
 
+  onUpdateUserLocation = (location) => {
+    this.currentUserLocation = location
+  }
+
+  onPressCenterUserLocation = () => {
+    // console.log('onPressCenterUserLocation')
+    this._map.onPressCenterUserLocation(this.currentUserLocation)
+  }
+
+  renderUserLocationButton = () => {
+    return (
+      <TouchableOpacity style={styles.userLocationButtonContainer} onPress={this.onPressCenterUserLocation}>
+        <Image
+          style={{ width: 30, height: 30 }}
+          source={require('../../images/icon/current-location.png')}
+          resizeMode={'contain'}
+        />
+      </TouchableOpacity>
+    )
+  }
+
   render() {
     return (
       <View style={{ flex: 1 }}>
         <Map
+          ref={map => { this._map = map }}
           onRegionDidChange={this.onRegionDidChange}
+          onUpdateUserLocation={this.onUpdateUserLocation}
         />
         <CenterDetail center={this.state.centerMapDetail} />
+        {this.renderUserLocationButton()}
       </View>
     )
+  }
+}
+
+const styles = {
+  userLocationButtonContainer: {
+    position: 'absolute',
+    backgroundColor:'white', 
+    borderRadius:25,
+    bottom: 80,
+    right: 10,
+    padding:10,
+    // marginRight
   }
 }
