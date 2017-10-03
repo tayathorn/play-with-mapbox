@@ -12,6 +12,12 @@ import { Config } from '../../config'
 import Map from '../../Components/Map'
 import CenterDetail from '../../Components/Map/CenterDetail'
 
+import Rain from '../../Components/Rain'
+
+const SVG_SIZE_WIDTH = 100
+const SVG_SIZE_HEIGHT = 100
+
+
 export default class Home extends Component {
   constructor(props) {
     super(props)
@@ -29,11 +35,11 @@ export default class Home extends Component {
 
   onRegionDidChange = (location) => {
     let { latitude, longitude, zoomLevel } = location
-    this.setState({
-      centerMapDetail: {
-        latitude, longitude, zoomLevel
-      }
-    })
+    // this.setState({
+    //   centerMapDetail: {
+    //     latitude, longitude, zoomLevel
+    //   }
+    // })
   }
 
   onUpdateUserLocation = (location) => {
@@ -57,6 +63,21 @@ export default class Home extends Component {
     )
   }
 
+  renderCenterDetail = () => {
+    // return(
+    //   <CenterDetail center={this.state.centerMapDetail} />
+    // )
+    return null
+  }
+
+  renderSVG = () => {
+    return(
+      <View style={styles.svgContainer}>
+        <Rain width={SVG_SIZE_WIDTH} height={SVG_SIZE_HEIGHT}/>
+      </View>
+    )
+  }
+
   render() {
     return (
       <View style={{ flex: 1 }}>
@@ -65,8 +86,9 @@ export default class Home extends Component {
           onRegionDidChange={this.onRegionDidChange}
           onUpdateUserLocation={this.onUpdateUserLocation}
         />
-        <CenterDetail center={this.state.centerMapDetail} />
-        {this.renderUserLocationButton()}
+        { this.renderCenterDetail() }
+        { this.renderUserLocationButton() }
+        { this.renderSVG() }
       </View>
     )
   }
@@ -77,9 +99,14 @@ const styles = {
     position: 'absolute',
     backgroundColor:'white', 
     borderRadius:25,
-    bottom: 80,
+    bottom: 10,
     right: 10,
     padding:10,
-    // marginRight
+  },
+  svgContainer: {
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+    backgroundColor:'transparent', 
   }
 }
