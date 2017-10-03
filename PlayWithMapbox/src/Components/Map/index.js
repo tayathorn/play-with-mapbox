@@ -10,8 +10,12 @@ import Mapbox, { MapView, Annotation } from 'react-native-mapbox-gl'
 import { Config } from '../../config'
 import { Annotations } from './data'
 
+import Rain from '../Rain'
+
 const accessToken = Config.map.accessToken
 Mapbox.setAccessToken(accessToken);
+
+const ZOOM_LEVEL = 13
 
 const initialMap = {
   zoom: 0,
@@ -21,7 +25,6 @@ const initialMap = {
   },
 }
 
-const ZOOM_LEVEL = 13
 
 export default class Map extends Component {
 
@@ -36,9 +39,9 @@ export default class Map extends Component {
 
   componentDidMount() {
 
-    this.setState({
-      annotations: Annotations
-    })
+    // this.setState({
+    //   annotations: Annotations
+    // })
   }
 
   onUpdateUserLocation = (location) => {
@@ -61,6 +64,12 @@ export default class Map extends Component {
     }
   }
 
+  onFinishLoadingMap = () => {
+    this.setState({
+      annotations: Annotations
+    })
+  }
+
   getAnnotation = () => {
     return this.state.annotations.map((poi) => {
       let latitude = poi.coord.lat
@@ -75,7 +84,8 @@ export default class Map extends Component {
           style={styles.annotation.wrapper}
         >
           <View>
-            <Image style={styles.annotation.imageSize} source={imgSource} resizeMode={'contain'} />
+            {<Image style={styles.annotation.imageSize} source={imgSource} resizeMode={'contain'} />}
+            {/*<Rain/>*/}
           </View>
         </Annotation>
       )
@@ -113,6 +123,7 @@ export default class Map extends Component {
         logoIsHidden={true}
         attributionButtonIsHidden={true}
         onOpenAnnotation={this.onSelectAnnotation}
+        onFinishLoadingMap={this.onFinishLoadingMap}
       >
         {this.getAnnotation()}
       </MapView>
