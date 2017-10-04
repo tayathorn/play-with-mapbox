@@ -3,19 +3,20 @@ import {
   StyleSheet,
   Text,
   View,
-  Image
+  Image,
 } from 'react-native';
 
 import Mapbox, { MapView, Annotation } from 'react-native-mapbox-gl'
 import { Config } from '../../config'
 import { Annotations } from './data'
 
-import Rain from '../Rain'
+import * as GeoJsonHelper from '../../util/GeoJsonHelper'
 
 const accessToken = Config.map.accessToken
 Mapbox.setAccessToken(accessToken);
 
-const ZOOM_LEVEL = 13
+const DEFAULT_ZOOM_LEVEL = 13
+const MAX_DEFAULT_ZOOM_LEVEL = 10
 
 const initialMap = {
   zoom: 0,
@@ -25,6 +26,10 @@ const initialMap = {
   },
 }
 
+const IN_RADIUS_IMG_PATH = 'https://i.imgur.com/NyIXta7.gif'
+// const OUT_RADIUS_IMG_PATH = 'https://vignette2.wikia.nocookie.net/clubpenguin/images/6/65/Forest_Pin_icon.png/revision/latest?cb=20120425094320'
+const OUT_RADIUS_IMG_PATH = require('../../images/icon/Penguin.png')
+
 
 export default class Map extends Component {
 
@@ -33,24 +38,29 @@ export default class Map extends Component {
 
     this.state = {
       annotations: [],
-      isFirstTime: true
+      isFirstTime: true,
+      circlePolygon: [],
     }
+
+    this.zoomLevel = 0
   }
 
   componentDidMount() {
 
-    // this.setState({
-    //   annotations: Annotations
-    // })
+    this.setState({
+      annotations: Annotations
+    })
   }
 
   onUpdateUserLocation = (location) => {
+
+    this.createCircleFromCenter(location)
 
     this.props.onUpdateUserLocation(location)
 
     let { latitude, longitude } = location
     if(this.state.isFirstTime) {
-      this._map.setCenterCoordinateZoomLevel(latitude, longitude, ZOOM_LEVEL, true)
+      this._map.setCenterCoordinateZoomLevel(latitude, longitude, DEFAULT_ZOOM_LEVEL, true)
       this.setState({
         isFirstTime: false,
       })
@@ -59,23 +69,59 @@ export default class Map extends Component {
   }
 
   onRegionDidChange = (location) => {
+    let { zoomLevel } = location
+    this.zoomLevel = zoomLevel
+
     if (this.props.onRegionDidChange) {
       this.props.onRegionDidChange(location)
     }
   }
 
-  onFinishLoadingMap = () => {
+  createCircleFromCenter = (location) => {
+    let { latitude, longitude} = location
+
+    let center = [longitude, latitude]
+    let radius = 1
+    
+    let circle = GeoJsonHelper.createCirclePolygon(center, radius)
+
+    let flipCoordsCircle = GeoJsonHelper.flipCoordinates(circle)
+
+    let circlePolygon = [{
+      coordinates: flipCoordsCircle.geometry.coordinates[0],
+      type: 'polygon',
+      fillAlpha:0.4,
+      fillColor: '#607D8B',
+      // strokeColor: '#c0392b',
+      alpha: 0.4,
+      id: 'circlePolygon'
+    }]
+
     this.setState({
-      annotations: Annotations
+      circlePolygon
+    }, () => {
+      this.findNearbyPoint()
     })
+
+  }
+
+  findNearbyPoint = () => {
+    let polygon = this.state.circlePolygon[0]
+    let points = ''
+
+    GeoJsonHelper.findWithin(points, polygon)
   }
 
   getAnnotation = () => {
     return this.state.annotations.map((poi) => {
       let latitude = poi.coord.lat
       let longitude = poi.coord.long
-      // let imgSource = require(poi.imgPath)
-      let imgSource = { uri: poi.imgPath }
+      // let imgSource = {uri: poi.imgPath}
+      let imgSource = ''
+      if(poi.nearby === 0) {
+        imgSource = OUT_RADIUS_IMG_PATH
+      }
+      // let imgSource = {uri: OUT_RADIUS_IMG_PATH}
       return (
         <Annotation
           key={poi.id}
@@ -85,7 +131,6 @@ export default class Map extends Component {
         >
           <View>
             {<Image style={styles.annotation.imageSize} source={imgSource} resizeMode={'contain'} />}
-            {/*<Rain/>*/}
           </View>
         </Annotation>
       )
@@ -96,7 +141,11 @@ export default class Map extends Component {
 
     if(location) {
       let { latitude, longitude } = location
-      this._map.setCenterCoordinate(latitude, longitude, true)
+      if(this.zoomLevel < MAX_DEFAULT_ZOOM_LEVEL) {
+        this._map.setCenterCoordinateZoomLevel(latitude, longitude, DEFAULT_ZOOM_LEVEL, true)
+      } else {
+        this._map.setCenterCoordinate(latitude, longitude, true)
+      }
     }
   }
 
@@ -105,6 +154,7 @@ export default class Map extends Component {
   }
 
   render() {
+
     return (
       <MapView
         ref={map => { this._map = map; }}
@@ -123,9 +173,11 @@ export default class Map extends Component {
         logoIsHidden={true}
         attributionButtonIsHidden={true}
         onOpenAnnotation={this.onSelectAnnotation}
-        onFinishLoadingMap={this.onFinishLoadingMap}
+        //onFinishLoadingMap={this.onFinishLoadingMap}
+        //onStartLoadingMap={this.onStartLoadingMap}
+        annotations={[...this.state.circlePolygon]}
       >
-        {this.getAnnotation()}
+        { this.getAnnotation() }
       </MapView>
     )
   }
