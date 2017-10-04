@@ -17,6 +17,11 @@ import Rain from '../../Components/Rain'
 const SVG_SIZE_WIDTH = 100
 const SVG_SIZE_HEIGHT = 100
 
+const IS_SHOW = {
+  HIDE: 0,
+  SHOW: 1
+}
+
 
 export default class Home extends Component {
   constructor(props) {
@@ -63,19 +68,27 @@ export default class Home extends Component {
     )
   }
 
-  renderCenterDetail = () => {
-    // return(
-    //   <CenterDetail center={this.state.centerMapDetail} />
-    // )
+  renderCenterDetail = (isShow) => {
+    if(isShow) {
+      return(
+        <CenterDetail center={this.state.centerMapDetail} />
+      )
+    }
+
     return null
   }
 
-  renderSVG = () => {
-    return(
-      <View style={styles.svgContainer}>
-        <Rain width={SVG_SIZE_WIDTH} height={SVG_SIZE_HEIGHT}/>
-      </View>
-    )
+  renderSVG = (isShow) => {
+    if(isShow) {
+      return(
+        <View style={styles.svgContainer}>
+          <Rain width={SVG_SIZE_WIDTH} height={SVG_SIZE_HEIGHT}/>
+        </View>
+      )
+    }
+
+    return null
+    
   }
 
   render() {
@@ -86,9 +99,10 @@ export default class Home extends Component {
           onRegionDidChange={this.onRegionDidChange}
           onUpdateUserLocation={this.onUpdateUserLocation}
         />
-        { this.renderCenterDetail() }
+
         { this.renderUserLocationButton() }
-        { this.renderSVG() }
+        { this.renderCenterDetail(IS_SHOW.HIDE) }
+        { this.renderSVG(IS_SHOW.HIDE) }
       </View>
     )
   }
