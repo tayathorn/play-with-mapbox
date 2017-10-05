@@ -8,7 +8,7 @@ import {
 
 import Mapbox, { MapView, Annotation } from 'react-native-mapbox-gl'
 import { Config } from '../../config'
-import { Annotations } from './data'
+import { AnnotationsData } from './data'
 
 import * as GeoJsonHelper from '../../util/GeoJsonHelper'
 
@@ -18,6 +18,8 @@ Mapbox.setAccessToken(accessToken);
 const DEFAULT_ZOOM_LEVEL = 13
 const MAX_DEFAULT_ZOOM_LEVEL = 10
 
+const NEARBY_RADIUS = 5
+
 const initialMap = {
   zoom: 0,
   center: {
@@ -26,7 +28,8 @@ const initialMap = {
   },
 }
 
-const IN_RADIUS_IMG_PATH = 'https://i.imgur.com/NyIXta7.gif'
+// const IN_RADIUS_IMG_PATH = 'https://i.imgur.com/NyIXta7.gif'
+const IN_RADIUS_IMG_PATH = require('../../images/gif/Merman.gif')
 // const OUT_RADIUS_IMG_PATH = 'https://vignette2.wikia.nocookie.net/clubpenguin/images/6/65/Forest_Pin_icon.png/revision/latest?cb=20120425094320'
 const OUT_RADIUS_IMG_PATH = require('../../images/icon/Penguin.png')
 
@@ -40,6 +43,7 @@ export default class Map extends Component {
       annotations: [],
       isFirstTime: true,
       circlePolygon: [],
+      nearbyPoints: [],
     }
 
     this.zoomLevel = 0
@@ -48,7 +52,7 @@ export default class Map extends Component {
   componentDidMount() {
 
     this.setState({
-      annotations: Annotations
+      annotations: AnnotationsData
     })
   }
 
@@ -81,9 +85,8 @@ export default class Map extends Component {
     let { latitude, longitude} = location
 
     let center = [longitude, latitude]
-    let radius = 1
     
-    let circle = GeoJsonHelper.createCirclePolygon(center, radius)
+    let circle = GeoJsonHelper.createCirclePolygon(center, NEARBY_RADIUS)
 
     let flipCoordsCircle = GeoJsonHelper.flipCoordinates(circle)
 
@@ -100,27 +103,40 @@ export default class Map extends Component {
     this.setState({
       circlePolygon
     }, () => {
-      this.findNearbyPoint()
+      this.findNearbyPoints()
     })
 
   }
 
-  findNearbyPoint = () => {
+  findNearbyPoints = () => {
     let polygon = this.state.circlePolygon[0]
-    let points = ''
+    let points = this.state.annotations
 
-    GeoJsonHelper.findWithin(points, polygon)
+    let geoJsonPoints = GeoJsonHelper.convertDataPointsToGeoJsonPoints(points)
+    let geoJsonPolygon = GeoJsonHelper.convertPolygonToGeoJsonPolygon(polygon)
+
+    let nearbyPoints = GeoJsonHelper.findWithin(geoJsonPoints, geoJsonPolygon)
+
+    // let getCoords = GeoJsonHelper.getCoords(nearbyPoints)
+
+    GeoJsonHelper.getCoords(nearbyPoints)
+
+    // console.log('getCoords : ', getCoords)
+
+    this.setState({
+      nearbyPoints
+    })
   }
 
   getAnnotation = () => {
     return this.state.annotations.map((poi) => {
-      let latitude = poi.coord.lat
-      let longitude = poi.coord.long
+      let latitude = poi.coordinates[0]
+      let longitude = poi.coordinates[1]
       // let imgSource = {uri: poi.imgPath}
-      let imgSource = ''
-      if(poi.nearby === 0) {
-        imgSource = OUT_RADIUS_IMG_PATH
-      }
+      let imgSource = (poi.nearby === 0) ? OUT_RADIUS_IMG_PATH : IN_RADIUS_IMG_PATH
+      // if(poi.nearby === 0) {
+      //   imgSource = OUT_RADIUS_IMG_PATH
+      // }
       // let imgSource = {uri: OUT_RADIUS_IMG_PATH}
       return (
         <Annotation
