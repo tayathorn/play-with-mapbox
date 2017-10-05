@@ -4,6 +4,7 @@ import {
   Text,
   View,
   Image,
+  TouchableOpacity
 } from 'react-native';
 
 import Mapbox, { MapView, Annotation } from 'react-native-mapbox-gl'
@@ -123,16 +124,9 @@ export default class Map extends Component {
     let geoJsonPoints = GeoJsonHelper.convertDataPointsToGeoJsonPoints(points)
     let geoJsonPolygon = GeoJsonHelper.convertPolygonToGeoJsonPolygon(polygon)
 
-    console.log('geoJsonPoints : ', geoJsonPoints)
-    console.log('geoJsonPolygon : ', geoJsonPolygon)
-
     let nearbyPoints = GeoJsonHelper.findWithin(geoJsonPoints, geoJsonPolygon)
 
-    // let getCoords = GeoJsonHelper.getCoords(nearbyPoints)
-
     let nearbyPointsProp = GeoJsonHelper.getPropEach(nearbyPoints)
-
-    // console.log('getCoords : ', getCoords)
 
     this.setState({
       nearbyPoints,
@@ -148,14 +142,8 @@ export default class Map extends Component {
       let latitude = poi.lat
       let longitude = poi.lng
 
-      // let imgSource = {uri: poi.imgPath}
-      // let imgSource = (poi.nearby === 0) ? OUT_RADIUS_IMG_PATH : IN_RADIUS_IMG_PATH
       let imgSource = this.getImageSource(poi)
-      // console.log('imgSource : ', imgSource)
-      // if(poi.nearby === 0) {
-      //   imgSource = OUT_RADIUS_IMG_PATH
-      // }
-      // let imgSource = {uri: OUT_RADIUS_IMG_PATH}
+
       return (
         <Annotation
           key={poi.id}
@@ -163,9 +151,11 @@ export default class Map extends Component {
           coordinate={{ latitude, longitude }}
           style={styles.annotation.wrapper}
         >
-          <View>
-            {<Image style={styles.annotation.imageSize} source={imgSource} resizeMode={'contain'} />}
-          </View>
+          <TouchableOpacity onPress={()=>console.log('onpress annotation')}>
+            <View>
+              {<Image style={styles.annotation.imageSize} source={imgSource} resizeMode={'contain'} />}
+            </View>
+          </TouchableOpacity>
         </Annotation>
       )
     })
@@ -201,6 +191,12 @@ export default class Map extends Component {
     console.log('onSelectAnnotation : ', annotation)
   }
 
+  onTap = () => {
+    // this._map.getBounds((bounds) => {
+    //   console.log('bounds : ', bounds)
+    // })
+  }
+
   render() {
 
     return (
@@ -221,9 +217,8 @@ export default class Map extends Component {
         logoIsHidden={true}
         attributionButtonIsHidden={true}
         onOpenAnnotation={this.onSelectAnnotation}
-        //onFinishLoadingMap={this.onFinishLoadingMap}
-        //onStartLoadingMap={this.onStartLoadingMap}
         annotations={[...this.state.circlePolygon]}
+        onTap={this.onTap}
       >
         { this.getAnnotation() }
       </MapView>

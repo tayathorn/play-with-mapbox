@@ -40,16 +40,12 @@ export function findWithin(geoJsonPoints, geoJsonPolygon, flip=true) {
 }
 
 export function convertPolygonToGeoJsonPolygon(polygon) {
-  console.log('[convertPolygonToGeoJsonPolygon]')
-
   let geoJsonPolygon = flipCoordinates(turf.polygon([[...polygon.coordinates]]))
 
   return geoJsonPolygon
 }
 
 export function convertDataPointsToGeoJsonPoints(points) {
-  console.log('[convertDataPointsToGeoJsonPoints] -- points : ', points)
-
   let geoJsonPoints = points.map((point) => {
     // return flipCoordinates(turf.point(point.coordinates,{id: point.id}))
     return turf.point([point.lng, point.lat],{id: point.id})
@@ -61,8 +57,6 @@ export function convertDataPointsToGeoJsonPoints(points) {
 export function getCoords(obj) {
 
   let coords = turf.coordAll(obj)
-
-  console.log('coords : ', coords)
   return coords
 }
 
@@ -72,8 +66,6 @@ export function getPropEach(geoJson) {
   turf.propEach(geoJson, (prop) => {
     featureProps.push(prop)
   })
-
-  console.log('featureProps : ', featureProps)
 
   return featureProps
 }
