@@ -51,7 +51,8 @@ export function convertDataPointsToGeoJsonPoints(points) {
   console.log('[convertDataPointsToGeoJsonPoints] -- points : ', points)
 
   let geoJsonPoints = points.map((point) => {
-    return flipCoordinates(turf.point(point.coordinates,{id: point.id}))
+    // return flipCoordinates(turf.point(point.coordinates,{id: point.id}))
+    return turf.point([point.lng, point.lat],{id: point.id})
   })
 
   return geoJsonPoints

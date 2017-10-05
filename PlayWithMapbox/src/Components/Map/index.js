@@ -9,6 +9,7 @@ import {
 import Mapbox, { MapView, Annotation } from 'react-native-mapbox-gl'
 import { Config } from '../../config'
 import { AnnotationsData } from './data'
+import { PostalData } from './postalData'
 
 import * as GeoJsonHelper from '../../util/GeoJsonHelper'
 
@@ -18,7 +19,9 @@ Mapbox.setAccessToken(accessToken);
 const DEFAULT_ZOOM_LEVEL = 13
 const MAX_DEFAULT_ZOOM_LEVEL = 10
 
-const NEARBY_RADIUS = 2
+const CUSTOM_ANNOTATION_SIZE = 70
+
+const NEARBY_RADIUS = 3
 
 const initialMap = {
   zoom: 0,
@@ -29,9 +32,9 @@ const initialMap = {
 }
 
 // const IN_RADIUS_IMG_PATH = 'https://i.imgur.com/NyIXta7.gif'
-const IN_RADIUS_IMG_PATH = require('../../images/gif/Merman.gif')
+const IN_RADIUS_IMG_PATH = require('../../images/monster/Tenter_Lion.gif')
 // const OUT_RADIUS_IMG_PATH = 'https://vignette2.wikia.nocookie.net/clubpenguin/images/6/65/Forest_Pin_icon.png/revision/latest?cb=20120425094320'
-const OUT_RADIUS_IMG_PATH = require('../../images/icon/Penguin.png')
+const OUT_RADIUS_IMG_PATH = require('../../images/monster/Predator.png')
 
 
 export default class Map extends Component {
@@ -53,7 +56,8 @@ export default class Map extends Component {
   componentDidMount() {
 
     this.setState({
-      annotations: AnnotationsData
+      // annotations: AnnotationsData
+      annotations: PostalData
     })
   }
 
@@ -80,6 +84,9 @@ export default class Map extends Component {
     if (this.props.onRegionDidChange) {
       this.props.onRegionDidChange(location)
     }
+
+    // this.createCircleFromCenter(location)
+    
   }
 
   createCircleFromCenter = (location) => {
@@ -135,11 +142,15 @@ export default class Map extends Component {
 
   getAnnotation = () => {
     return this.state.annotations.map((poi) => {
-      let latitude = poi.coordinates[0]
-      let longitude = poi.coordinates[1]
+      // let latitude = poi.coordinates[0]
+      // let longitude = poi.coordinates[1]
+
+      let latitude = poi.lat
+      let longitude = poi.lng
+
       // let imgSource = {uri: poi.imgPath}
       // let imgSource = (poi.nearby === 0) ? OUT_RADIUS_IMG_PATH : IN_RADIUS_IMG_PATH
-      let imgSource = this.getImageSource(poi.id)
+      let imgSource = this.getImageSource(poi)
       // console.log('imgSource : ', imgSource)
       // if(poi.nearby === 0) {
       //   imgSource = OUT_RADIUS_IMG_PATH
@@ -160,12 +171,13 @@ export default class Map extends Component {
     })
   }
 
-  getImageSource = (pointId) => {
+  getImageSource = (point) => {
 
+    // let imgSource = {uri: point.imgPath}
     let imgSource = OUT_RADIUS_IMG_PATH
     if(this.state.nearbyPointsProp.length > 0) {
       this.state.nearbyPointsProp.map((prop) => {
-        if(pointId === prop.id) {
+        if(point.id === prop.id) {
           return imgSource = IN_RADIUS_IMG_PATH
         }
       })
@@ -227,8 +239,8 @@ const styles = {
       position: 'absolute'
     },
     imageSize: {
-      width: 50,
-      height: 50
+      width: CUSTOM_ANNOTATION_SIZE,
+      height: CUSTOM_ANNOTATION_SIZE
     }
   }
 }
