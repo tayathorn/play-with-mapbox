@@ -22,18 +22,16 @@ export function createCirclePolygon(center, radius, steps = 64, units = 'kilomet
   return circle
 }
 
-export function findWithin(geoJsonPoints, geoJsonPolygon) {
-  console.log('[findWithin] -- geoJsonPoints : ', geoJsonPoints)
-  console.log('[findWithin] -- geoJsonPolygon : ', geoJsonPolygon)
+export function findWithin(geoJsonPoints, geoJsonPolygon, flip=true) {
   
   let searchWithin = turf.featureCollection([geoJsonPolygon])
-
   let points = turf.featureCollection(geoJsonPoints)
 
-  console.log('[findWithin] -- searchWithin : ', searchWithin)
-  console.log('[findWithin] -- points : ', points)
-
   let pointsWithin = turf.within(points, searchWithin)
+
+  if(flip) {
+    pointsWithin = flipCoordinates(pointsWithin)
+  }
 
   console.log('[findWithin] -- pointsWithin : ', pointsWithin)
 
@@ -50,10 +48,10 @@ export function convertPolygonToGeoJsonPolygon(polygon) {
 }
 
 export function convertDataPointsToGeoJsonPoints(points) {
-  console.log('[convertDataPointsToGeoJsonPoints]')
+  console.log('[convertDataPointsToGeoJsonPoints] -- points : ', points)
 
   let geoJsonPoints = points.map((point) => {
-    return flipCoordinates(turf.point(point.coordinates))
+    return flipCoordinates(turf.point(point.coordinates,{id: point.id}))
   })
 
   return geoJsonPoints
@@ -65,4 +63,16 @@ export function getCoords(obj) {
 
   console.log('coords : ', coords)
   return coords
+}
+
+export function getPropEach(geoJson) {
+  let featureProps = []
+  
+  turf.propEach(geoJson, (prop) => {
+    featureProps.push(prop)
+  })
+
+  console.log('featureProps : ', featureProps)
+
+  return featureProps
 }

@@ -18,7 +18,7 @@ Mapbox.setAccessToken(accessToken);
 const DEFAULT_ZOOM_LEVEL = 13
 const MAX_DEFAULT_ZOOM_LEVEL = 10
 
-const NEARBY_RADIUS = 5
+const NEARBY_RADIUS = 2
 
 const initialMap = {
   zoom: 0,
@@ -44,6 +44,7 @@ export default class Map extends Component {
       isFirstTime: true,
       circlePolygon: [],
       nearbyPoints: [],
+      nearbyPointsProp: [],
     }
 
     this.zoomLevel = 0
@@ -115,16 +116,20 @@ export default class Map extends Component {
     let geoJsonPoints = GeoJsonHelper.convertDataPointsToGeoJsonPoints(points)
     let geoJsonPolygon = GeoJsonHelper.convertPolygonToGeoJsonPolygon(polygon)
 
+    console.log('geoJsonPoints : ', geoJsonPoints)
+    console.log('geoJsonPolygon : ', geoJsonPolygon)
+
     let nearbyPoints = GeoJsonHelper.findWithin(geoJsonPoints, geoJsonPolygon)
 
     // let getCoords = GeoJsonHelper.getCoords(nearbyPoints)
 
-    GeoJsonHelper.getCoords(nearbyPoints)
+    let nearbyPointsProp = GeoJsonHelper.getPropEach(nearbyPoints)
 
     // console.log('getCoords : ', getCoords)
 
     this.setState({
-      nearbyPoints
+      nearbyPoints,
+      nearbyPointsProp
     })
   }
 
@@ -133,7 +138,9 @@ export default class Map extends Component {
       let latitude = poi.coordinates[0]
       let longitude = poi.coordinates[1]
       // let imgSource = {uri: poi.imgPath}
-      let imgSource = (poi.nearby === 0) ? OUT_RADIUS_IMG_PATH : IN_RADIUS_IMG_PATH
+      // let imgSource = (poi.nearby === 0) ? OUT_RADIUS_IMG_PATH : IN_RADIUS_IMG_PATH
+      let imgSource = this.getImageSource(poi.id)
+      // console.log('imgSource : ', imgSource)
       // if(poi.nearby === 0) {
       //   imgSource = OUT_RADIUS_IMG_PATH
       // }
@@ -151,6 +158,19 @@ export default class Map extends Component {
         </Annotation>
       )
     })
+  }
+
+  getImageSource = (pointId) => {
+
+    let imgSource = OUT_RADIUS_IMG_PATH
+    if(this.state.nearbyPointsProp.length > 0) {
+      this.state.nearbyPointsProp.map((prop) => {
+        if(pointId === prop.id) {
+          return imgSource = IN_RADIUS_IMG_PATH
+        }
+      })
+    }
+    return imgSource
   }
 
   onPressCenterUserLocation = (location) => {
