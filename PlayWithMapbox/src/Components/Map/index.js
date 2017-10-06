@@ -144,6 +144,12 @@ export default class Map extends Component {
 
       let imgSource = this.getImageSource(poi)
 
+      let marker = {
+        id: poi.id,
+        latitude,
+        longitude
+      }
+
       return (
         <Annotation
           key={poi.id}
@@ -151,7 +157,7 @@ export default class Map extends Component {
           coordinate={{ latitude, longitude }}
           style={styles.annotation.wrapper}
         >
-          <TouchableOpacity activeOpacity={1} onPress={this.onPressAnnotation}>
+          <TouchableOpacity activeOpacity={1} onPress={()=>this.onSelectAnnotation(marker)}>
             <View>
               {<Image style={styles.annotation.imageSize} source={imgSource} resizeMode={'contain'} />}
             </View>
@@ -192,7 +198,8 @@ export default class Map extends Component {
   }
 
   onSelectAnnotation = (annotation) => {
-    console.log('onSelectAnnotation : ', annotation)
+    let { id, latitude, longitude } = annotation
+    console.log('onSelectAnnotation : ', {id, latitude, longitude})
   }
 
   onTap = () => {
