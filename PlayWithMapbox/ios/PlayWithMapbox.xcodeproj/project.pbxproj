@@ -36,8 +36,8 @@
 		2DCD954D1E0B4F2C00145EB5 /* PlayWithMapboxTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* PlayWithMapboxTests.m */; };
 		4A7A36DC1F7CEA0300E3FBF6 /* Mapbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A7A36DB1F7CEA0300E3FBF6 /* Mapbox.framework */; };
 		4A7A36DD1F7CEA0300E3FBF6 /* Mapbox.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A7A36DB1F7CEA0300E3FBF6 /* Mapbox.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		4AE793F71F837A2F00EAA4BE /* libRCTMapboxGL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A7A36CF1F7CE93B00E3FBF6 /* libRCTMapboxGL.a */; };
 		4AE7940E1F837F1300EAA4BE /* libRNSVG.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE7940B1F837EF500EAA4BE /* libRNSVG.a */; };
+		4AE7940F1F83904300EAA4BE /* libRCTMapboxGL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A7A36CF1F7CE93B00E3FBF6 /* libRCTMapboxGL.a */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
@@ -363,8 +363,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AE7940F1F83904300EAA4BE /* libRCTMapboxGL.a in Frameworks */,
 				4AE7940E1F837F1300EAA4BE /* libRNSVG.a in Frameworks */,
-				4AE793F71F837A2F00EAA4BE /* libRCTMapboxGL.a in Frameworks */,
 				ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */,
 				5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */,
 				146834051AC3E58100842450 /* libReact.a in Frameworks */,
@@ -1263,7 +1263,7 @@
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
 				);
 				INFOPLIST_FILE = PlayWithMapbox/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1291,7 +1291,7 @@
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
 				);
 				INFOPLIST_FILE = PlayWithMapbox/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
