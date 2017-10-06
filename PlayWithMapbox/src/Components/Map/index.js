@@ -87,8 +87,6 @@ export default class Map extends Component {
       this.props.onRegionDidChange(location)
     }
 
-    // this.createCircleFromCenter(location)
-    
   }
 
   createCircleFromCenter = (location) => {
@@ -179,10 +177,6 @@ export default class Map extends Component {
       })
     }
     return imgSource
-  }
-
-  onPressAnnotation = () => {
-    console.log('onpress annotation')
   }
 
   onPressCenterUserLocation = (location) => {
