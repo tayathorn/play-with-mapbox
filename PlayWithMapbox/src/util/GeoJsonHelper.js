@@ -35,6 +35,8 @@ export function findWithin(geoJsonPoints, geoJsonPolygon, flip=true) {
 
   console.log('[findWithin] -- pointsWithin : ', pointsWithin)
 
+  pointsWithin = getGeomEach(pointsWithin)
+
   return pointsWithin
 
 }
@@ -60,12 +62,16 @@ export function getCoords(obj) {
   return coords
 }
 
-export function getPropEach(geoJson) {
-  let featureProps = []
-  
-  turf.propEach(geoJson, (prop) => {
-    featureProps.push(prop)
+export function getGeomEach(geoJson) {
+  let geomList = []
+
+  turf.geomEach(geoJson, (geom, _, prop) => {
+    let obj = {
+      ...geom,
+      ...prop
+    }
+    geomList.push(obj)
   })
 
-  return featureProps
+  return geomList
 }

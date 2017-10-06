@@ -48,10 +48,11 @@ export default class Map extends Component {
       isFirstTime: true,
       circlePolygon: [],
       nearbyPoints: [],
-      nearbyPointsProp: [],
     }
 
     this.zoomLevel = 0
+    
+    this.nearbyPointsProp = []
   }
 
   componentDidMount() {
@@ -126,11 +127,10 @@ export default class Map extends Component {
 
     let nearbyPoints = GeoJsonHelper.findWithin(geoJsonPoints, geoJsonPolygon)
 
-    let nearbyPointsProp = GeoJsonHelper.getPropEach(nearbyPoints)
+    console.log('nearbyPoints : ', nearbyPoints)
 
     this.setState({
       nearbyPoints,
-      nearbyPointsProp
     })
   }
 
@@ -151,7 +151,7 @@ export default class Map extends Component {
           coordinate={{ latitude, longitude }}
           style={styles.annotation.wrapper}
         >
-          <TouchableOpacity onPress={()=>console.log('onpress annotation')}>
+          <TouchableOpacity activeOpacity={1} onPress={this.onPressAnnotation}>
             <View>
               {<Image style={styles.annotation.imageSize} source={imgSource} resizeMode={'contain'} />}
             </View>
@@ -165,14 +165,18 @@ export default class Map extends Component {
 
     // let imgSource = {uri: point.imgPath}
     let imgSource = OUT_RADIUS_IMG_PATH
-    if(this.state.nearbyPointsProp.length > 0) {
-      this.state.nearbyPointsProp.map((prop) => {
+    if(this.state.nearbyPoints.length > 0) {
+      this.state.nearbyPoints.map((prop) => {
         if(point.id === prop.id) {
           return imgSource = IN_RADIUS_IMG_PATH
         }
       })
     }
     return imgSource
+  }
+
+  onPressAnnotation = () => {
+    console.log('onpress annotation')
   }
 
   onPressCenterUserLocation = (location) => {
