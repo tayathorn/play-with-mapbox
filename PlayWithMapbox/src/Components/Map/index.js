@@ -14,6 +14,7 @@ import Popup from '../Popup'
 import { Config } from '../../config'
 import { AnnotationsData } from './data'
 import { PostalData } from './postalData'
+import { PostalJson } from './postalJson'
 
 import * as GeoJsonHelper from '../../util/GeoJsonHelper'
 
@@ -23,12 +24,12 @@ Mapbox.setAccessToken(accessToken);
 const DEFAULT_ZOOM_LEVEL = 13
 const MAX_DEFAULT_ZOOM_LEVEL = 10
 
-const CUSTOM_ANNOTATION_SIZE = 50
+const CUSTOM_ANNOTATION_SIZE = 30
 
 const NEARBY_RADIUS = 1
 
 const initialMap = {
-  zoom: 0,
+  zoom: 10,
   center: {
     latitude: 0,
     longitude: 0,
@@ -38,7 +39,8 @@ const initialMap = {
 // const IN_RADIUS_IMG_PATH = 'https://i.imgur.com/NyIXta7.gif'
 const IN_RADIUS_IMG_PATH = require('../../images/monster/Tenter_Lion.gif')
 // const OUT_RADIUS_IMG_PATH = 'https://vignette2.wikia.nocookie.net/clubpenguin/images/6/65/Forest_Pin_icon.png/revision/latest?cb=20120425094320'
-const OUT_RADIUS_IMG_PATH = require('../../images/monster/Predator.png')
+// const OUT_RADIUS_IMG_PATH = require('../../images/monster/Predator.png')
+const OUT_RADIUS_IMG_PATH = require('../../images/icon/forest.png')
 
 
 export default class Map extends Component {
