@@ -58,8 +58,10 @@ export default class Map extends Component {
     }
 
     this.zoomLevel = 0
-    
-    this.nearbyPointsProp = []
+
+    this.poiWithinBound = []
+    this.rectangleScreenBound = []
+
   }
 
   componentDidMount() {
@@ -77,7 +79,7 @@ export default class Map extends Component {
     this.props.onUpdateUserLocation(location)
 
     let { latitude, longitude } = location
-    if(this.state.isFirstTime) {
+    if (this.state.isFirstTime) {
       this._map.setCenterCoordinateZoomLevel(latitude, longitude, DEFAULT_ZOOM_LEVEL, true)
       this.setState({
         isFirstTime: false,
@@ -91,20 +93,20 @@ export default class Map extends Component {
     let { zoomLevel } = location
     this.zoomLevel = zoomLevel
 
-    console.log('zoomLevel : ', zoomLevel)
-
     if (this.props.onRegionDidChange) {
       this.props.onRegionDidChange(location)
     }
 
     this.getRectangleBound()
+
+    // this.findPointWithinCurrentBound()
   }
 
   createCircleFromCenter = (location) => {
-    let { latitude, longitude} = location
+    let { latitude, longitude } = location
 
     let center = [longitude, latitude]
-    
+
     let circle = GeoJsonHelper.createCirclePolygon(center, NEARBY_RADIUS)
 
     let flipCoordsCircle = GeoJsonHelper.flipCoordinates(circle)
@@ -112,7 +114,7 @@ export default class Map extends Component {
     let circlePolygon = [{
       coordinates: flipCoordsCircle.geometry.coordinates[0],
       type: 'polygon',
-      fillAlpha:0.4,
+      fillAlpha: 0.4,
       fillColor: '#607D8B',
       // strokeColor: '#c0392b',
       alpha: 0.4,
@@ -168,8 +170,8 @@ export default class Map extends Component {
           coordinate={{ latitude, longitude }}
           style={styles.annotation.wrapper}
         >
-          <Popup visible={visible} title={poi.zip}/>
-          <TouchableOpacity activeOpacity={1} onPress={()=>this.onSelectAnnotation(marker)}>
+          <Popup visible={visible} title={poi.zip} />
+          <TouchableOpacity activeOpacity={1} onPress={() => this.onSelectAnnotation(marker)}>
             <View>
               {<Image style={styles.annotation.imageSize} source={imgSource} resizeMode={'contain'} />}
             </View>
@@ -183,9 +185,9 @@ export default class Map extends Component {
 
     // let imgSource = {uri: point.imgPath}
     let imgSource = OUT_RADIUS_IMG_PATH
-    if(this.state.nearbyPoints.length > 0) {
+    if (this.state.nearbyPoints.length > 0) {
       this.state.nearbyPoints.map((prop) => {
-        if(point.id === prop.id) {
+        if (point.id === prop.id) {
           return imgSource = IN_RADIUS_IMG_PATH
         }
       })
@@ -194,6 +196,7 @@ export default class Map extends Component {
   }
 
   getRectangleBound = () => {
+
     this._map.getBounds(bound => {
       console.log('bound : ', bound)
 
@@ -201,31 +204,49 @@ export default class Map extends Component {
       let longitudeSW = bound[1]
       let latitudeNE = bound[2]
       let longitudeNE = bound[3]
-      
+
       let rectanglePolygon = [{
-        coordinates: [[latitudeSW, longitudeSW], [latitudeSW, longitudeNE], [latitudeNE,longitudeNE], [latitudeNE, longitudeSW]],
+        coordinates: [[latitudeSW, longitudeSW], [latitudeSW, longitudeNE], [latitudeNE, longitudeNE], [latitudeNE, longitudeSW], [latitudeSW, longitudeSW]],
         type: 'polygon',
-        fillAlpha:0.4,
+        fillAlpha: 0.4,
         fillColor: '#f44336',
         // strokeColor: '#c0392b',
         alpha: 0.4,
         id: 'rectanglePolygon'
       }]
 
+      this.rectangleScreenBound = rectanglePolygon
+
       console.log('rectanglePolygon : ', ...rectanglePolygon)
 
-      this.setState({
-        rectangleBound: rectanglePolygon
-      })
+      // this.setState({
+      //   rectangleBound: rectanglePolygon
+      // })
 
+      this.findPointWithinCurrentBound()
     })
+
+  }
+
+  findPointWithinCurrentBound = () => {
+    let polygon = this.rectangleScreenBound
+    let points = PostalJson//this.state.annotations
+
+    console.log('polygon : ', polygon)
+
+    let geoJsonPoints = GeoJsonHelper.convertDataPointsToGeoJsonPoints(points)
+    let geoJsonPolygon = GeoJsonHelper.convertPolygonToGeoJsonPolygon(polygon[0])
+
+    let pointWithinBound = GeoJsonHelper.findWithin(geoJsonPoints, geoJsonPolygon)
+
+    console.log('pointWithinBound : ', pointWithinBound)
   }
 
   onPressCenterUserLocation = (location) => {
 
-    if(location) {
+    if (location) {
       let { latitude, longitude } = location
-      if(this.zoomLevel < MAX_DEFAULT_ZOOM_LEVEL) {
+      if (this.zoomLevel < MAX_DEFAULT_ZOOM_LEVEL) {
         this._map.setCenterCoordinateZoomLevel(latitude, longitude, DEFAULT_ZOOM_LEVEL, true)
       } else {
         this._map.setCenterCoordinate(latitude, longitude, true)
@@ -235,10 +256,10 @@ export default class Map extends Component {
 
   onSelectAnnotation = (annotation) => {
     let { id, latitude, longitude } = annotation
-    console.log('onSelectAnnotation : ', {id, latitude, longitude})
+    console.log('onSelectAnnotation : ', { id, latitude, longitude })
 
     let annotationObj = { id, latitude, longitude }
-    
+
     this.setState({
       selectedPoint: annotationObj
     })
@@ -276,11 +297,12 @@ export default class Map extends Component {
         logoIsHidden={true}
         attributionButtonIsHidden={true}
         onOpenAnnotation={this.onSelectAnnotation}
-        annotations={[...this.state.circlePolygon, ...this.state.rectangleBound]}
+        //annotations={[...this.state.circlePolygon, ...this.state.rectangleBound]}
+        annotations={[...this.state.circlePolygon]}
         onTap={this.onTap}
         userTrackingMode={Mapbox.userTrackingMode.follow}
       >
-        { this.getAnnotation() }
+        {this.getAnnotation()}
       </MapView>
     )
   }
