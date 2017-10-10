@@ -8,6 +8,9 @@ import {
 } from 'react-native';
 
 import Mapbox, { MapView, Annotation } from 'react-native-mapbox-gl'
+
+import Popup from '../Popup'
+
 import { Config } from '../../config'
 import { AnnotationsData } from './data'
 import { PostalData } from './postalData'
@@ -20,9 +23,9 @@ Mapbox.setAccessToken(accessToken);
 const DEFAULT_ZOOM_LEVEL = 13
 const MAX_DEFAULT_ZOOM_LEVEL = 10
 
-const CUSTOM_ANNOTATION_SIZE = 70
+const CUSTOM_ANNOTATION_SIZE = 50
 
-const NEARBY_RADIUS = 3
+const NEARBY_RADIUS = 1
 
 const initialMap = {
   zoom: 0,
@@ -48,6 +51,8 @@ export default class Map extends Component {
       isFirstTime: true,
       circlePolygon: [],
       nearbyPoints: [],
+      selectedPoint: {},
+      rectangleBound: []
     }
 
     this.zoomLevel = 0
@@ -75,18 +80,22 @@ export default class Map extends Component {
       this.setState({
         isFirstTime: false,
       })
+    } else {
+      this._map.setCenterCoordinate(latitude, longitude, true)
     }
-
   }
 
   onRegionDidChange = (location) => {
     let { zoomLevel } = location
     this.zoomLevel = zoomLevel
 
+    console.log('zoomLevel : ', zoomLevel)
+
     if (this.props.onRegionDidChange) {
       this.props.onRegionDidChange(location)
     }
 
+    this.getRectangleBound()
   }
 
   createCircleFromCenter = (location) => {
@@ -148,6 +157,8 @@ export default class Map extends Component {
         longitude
       }
 
+      let visible = (poi.id === this.state.selectedPoint.id)
+
       return (
         <Annotation
           key={poi.id}
@@ -155,6 +166,7 @@ export default class Map extends Component {
           coordinate={{ latitude, longitude }}
           style={styles.annotation.wrapper}
         >
+          <Popup visible={visible} title={poi.zip}/>
           <TouchableOpacity activeOpacity={1} onPress={()=>this.onSelectAnnotation(marker)}>
             <View>
               {<Image style={styles.annotation.imageSize} source={imgSource} resizeMode={'contain'} />}
@@ -179,6 +191,34 @@ export default class Map extends Component {
     return imgSource
   }
 
+  getRectangleBound = () => {
+    this._map.getBounds(bound => {
+      console.log('bound : ', bound)
+
+      let latitudeSW = bound[0]
+      let longitudeSW = bound[1]
+      let latitudeNE = bound[2]
+      let longitudeNE = bound[3]
+      
+      let rectanglePolygon = [{
+        coordinates: [[latitudeSW, longitudeSW], [latitudeSW, longitudeNE], [latitudeNE,longitudeNE], [latitudeNE, longitudeSW]],
+        type: 'polygon',
+        fillAlpha:0.4,
+        fillColor: '#f44336',
+        // strokeColor: '#c0392b',
+        alpha: 0.4,
+        id: 'rectanglePolygon'
+      }]
+
+      console.log('rectanglePolygon : ', ...rectanglePolygon)
+
+      this.setState({
+        rectangleBound: rectanglePolygon
+      })
+
+    })
+  }
+
   onPressCenterUserLocation = (location) => {
 
     if(location) {
@@ -194,15 +234,27 @@ export default class Map extends Component {
   onSelectAnnotation = (annotation) => {
     let { id, latitude, longitude } = annotation
     console.log('onSelectAnnotation : ', {id, latitude, longitude})
+
+    let annotationObj = { id, latitude, longitude }
+    
+    this.setState({
+      selectedPoint: annotationObj
+    })
   }
 
-  onTap = () => {
+  onTap = (location) => {
     // this._map.getBounds((bounds) => {
     //   console.log('bounds : ', bounds)
     // })
+
+    let { latitude, longitude } = location
+
+    console.log('onTap : ', { latitude, longitude })
+
   }
 
   render() {
+    // console.log('state rectangleBound : ', this.state.rectangleBound[0].coordinates)
 
     return (
       <MapView
@@ -222,8 +274,9 @@ export default class Map extends Component {
         logoIsHidden={true}
         attributionButtonIsHidden={true}
         onOpenAnnotation={this.onSelectAnnotation}
-        annotations={[...this.state.circlePolygon]}
+        annotations={[...this.state.circlePolygon, ...this.state.rectangleBound]}
         onTap={this.onTap}
+        userTrackingMode={Mapbox.userTrackingMode.follow}
       >
         { this.getAnnotation() }
       </MapView>
