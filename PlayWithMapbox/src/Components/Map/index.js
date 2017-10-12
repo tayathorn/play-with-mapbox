@@ -69,6 +69,7 @@ export default class Map extends Component {
     this.setState({
       // annotations: AnnotationsData
       annotations: PostalData
+      // annotations: PostalJson
     })
   }
 
@@ -97,7 +98,7 @@ export default class Map extends Component {
       this.props.onRegionDidChange(location)
     }
 
-    this.getRectangleBound()
+    // this.getRectangleBound()
 
     // this.findPointWithinCurrentBound()
   }
@@ -146,39 +147,42 @@ export default class Map extends Component {
   }
 
   getAnnotation = () => {
-    return this.state.annotations.map((poi) => {
-      // let latitude = poi.coordinates[0]
-      // let longitude = poi.coordinates[1]
+    if(this.state.annotations.length > 0) {
 
-      let latitude = poi.lat
-      let longitude = poi.lng
-
-      let imgSource = this.getImageSource(poi)
-
-      let marker = {
-        id: poi.id,
-        latitude,
-        longitude
-      }
-
-      let visible = (poi.id === this.state.selectedPoint.id)
-
-      return (
-        <Annotation
-          key={poi.id}
-          id={poi.id}
-          coordinate={{ latitude, longitude }}
-          style={styles.annotation.wrapper}
-        >
-          <Popup visible={visible} title={poi.zip} />
-          <TouchableOpacity activeOpacity={1} onPress={() => this.onSelectAnnotation(marker)}>
-            <View>
-              {<Image style={styles.annotation.imageSize} source={imgSource} resizeMode={'contain'} />}
-            </View>
-          </TouchableOpacity>
-        </Annotation>
-      )
-    })
+      return this.state.annotations.map((poi) => {
+        // let latitude = poi.coordinates[0]
+        // let longitude = poi.coordinates[1]
+  
+        let latitude = poi.lat
+        let longitude = poi.lng
+  
+        let imgSource = this.getImageSource(poi)
+  
+        let marker = {
+          id: poi.id,
+          latitude,
+          longitude
+        }
+  
+        let visible = (poi.id === this.state.selectedPoint.id)
+  
+        return (
+          <Annotation
+            key={poi.id}
+            id={poi.id}
+            coordinate={{ latitude, longitude }}
+            style={styles.annotation.wrapper}
+          >
+            {/*<Popup visible={visible} title={poi.zip} />*/}
+            <TouchableOpacity activeOpacity={1} onPress={() => this.onSelectAnnotation(marker)}>
+              <View>
+                {<Image style={styles.annotation.imageSize} source={imgSource} resizeMode={'contain'} />}
+              </View>
+            </TouchableOpacity>
+          </Annotation>
+        )
+      })
+    }
   }
 
   getImageSource = (point) => {
@@ -240,6 +244,10 @@ export default class Map extends Component {
     let pointWithinBound = GeoJsonHelper.findWithin(geoJsonPoints, geoJsonPolygon)
 
     console.log('pointWithinBound : ', pointWithinBound)
+
+    // this.setState({
+    //   annotations: pointWithinBound
+    // })
   }
 
   onPressCenterUserLocation = (location) => {

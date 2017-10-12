@@ -49,8 +49,15 @@ export function convertPolygonToGeoJsonPolygon(polygon) {
 
 export function convertDataPointsToGeoJsonPoints(points) {
   let geoJsonPoints = points.map((point) => {
+
+    if(point.lat && point.lng) {
+      return turf.point([point.lng, point.lat],{id: point.id})
+    } else if(point.coordinates) {
+      return turf.point(point.coordinates,{id: point.id})
+    }
     // return flipCoordinates(turf.point(point.coordinates,{id: point.id}))
-    return turf.point([point.lng, point.lat],{id: point.id})
+    // return turf.point([point.lng, point.lat],{id: point.id})
+    
   })
 
   return geoJsonPoints
